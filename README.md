@@ -20,3 +20,5 @@
       
 - Always have 'Player' playing 'upper' internally and if it has been assigned 'lower' just \
   invert the moves given to the referee and invert the moves coming from the referee
+  
+- Have a token run away if things are looking bad to guarantee draw

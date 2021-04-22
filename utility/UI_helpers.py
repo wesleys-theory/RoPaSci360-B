@@ -30,10 +30,10 @@ class Action:
         """
         if coord_from is False:
             self.throw_action = True
-            self.old_coord = False
         else:
             self.throw_action = False
-            self.old_coord = coord_from
+
+        self.old_coord = coord_from
         self.token_type = token_type
         self.new_coord = coord_to
 
@@ -121,17 +121,17 @@ class AgentBoard:
                 self.upper_rocks.remove(u_action.old_coord)
                 self.board_dict[u_action.old_coord].remove(U_ROCK)
                 self.upper_rocks.append(u_action.new_coord)
-                self.board_dict[u_action.new_coord].append(u_action.new_coord)
+                self.board_dict[u_action.new_coord].append(U_ROCK)
             elif u_action.token_type is U_SCISSORS:
                 self.upper_scissors.remove(u_action.old_coord)
                 self.board_dict[u_action.old_coord].remove(U_SCISSORS)
                 self.upper_scissors.append(u_action.new_coord)
-                self.board_dict[u_action.new_coord].append(u_action.new_coord)
+                self.board_dict[u_action.new_coord].append(U_SCISSORS)
             elif u_action.token_type is U_PAPER:
                 self.upper_papers.remove(u_action.old_coord)
                 self.board_dict[u_action.old_coord].remove(U_PAPER)
                 self.upper_papers.append(u_action.new_coord)
-                self.board_dict[u_action.new_coord].append(u_action.new_coord)
+                self.board_dict[u_action.new_coord].append(U_PAPER)
 
         if l_action.throw_action:
             self.lower_throws -= 1
@@ -149,20 +149,20 @@ class AgentBoard:
                 self.lower_rocks.remove(l_action.old_coord)
                 self.board_dict[l_action.old_coord].remove(L_ROCK)
                 self.lower_rocks.append(l_action.new_coord)
-                self.board_dict[l_action.new_coord].append(l_action.new_coord)
+                self.board_dict[l_action.new_coord].append(L_ROCK)
             elif l_action.token_type is L_SCISSORS:
                 self.lower_scissors.remove(l_action.old_coord)
                 self.board_dict[l_action.old_coord].remove(L_SCISSORS)
                 self.lower_scissors.append(l_action.new_coord)
-                self.board_dict[l_action.new_coord].append(l_action.new_coord)
+                self.board_dict[l_action.new_coord].append(L_SCISSORS)
             elif l_action.token_type is L_PAPER:
                 self.lower_papers.remove(l_action.old_coord)
                 self.board_dict[l_action.old_coord].remove(L_PAPER)
                 self.lower_papers.append(l_action.new_coord)
-                self.board_dict[l_action.new_coord].append(l_action.new_coord)
+                self.board_dict[l_action.new_coord].append(L_PAPER)
 
         # Tokens have moved, now perform any necessary battles
-        self.battle(u_action.new_coord)
+        self.battle(u_actidon.new_coord)
         self.battle(l_action.new_coord)
 
         self.move_count += 1
@@ -170,11 +170,12 @@ class AgentBoard:
         # TODO: test the SHIT out of this method and maybe add draw/win condition checking ?
 
 
-    def is_legal(self, move) -> bool:
+    def is_legal(self, move: Action):
         """
         checks if the move is legal or not
         """
         # TODO: implement this method
+
         return True
 
 

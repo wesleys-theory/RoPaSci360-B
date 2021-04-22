@@ -162,7 +162,7 @@ class AgentBoard:
                 self.board_dict[l_action.new_coord].append(L_PAPER)
 
         # Tokens have moved, now perform any necessary battles
-        self.battle(u_actidon.new_coord)
+        self.battle(u_action.new_coord)
         self.battle(l_action.new_coord)
 
         self.move_count += 1
@@ -170,12 +170,26 @@ class AgentBoard:
         # TODO: test the SHIT out of this method and maybe add draw/win condition checking ?
 
 
-    def is_legal(self, move: Action):
+    def is_legal(self, move: Action)->bool:
         """
         checks if the move is legal or not
         """
         # TODO: implement this method
 
+        coord = move.old_coord
+        adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
+                     (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
+        if not move.new_coord in adjacents:
+            # Coord updated to coord moved to such that intersection of 2 adjacent sets are where possible swing
+            # tokens lie
+            coord = move.new_coord
+            new_adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
+                     (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
+            intersect = list(set.intersection(set(adjacents), set(new_adjacents)))
+            for
+            return False
+        elif move.new_coord not in ALL_HEXES:
+            return False
         return True
 
 

@@ -37,7 +37,6 @@ class Action:
         self.token_type = token_type
         self.new_coord = coord_to
 
-
     def referee_representation(self) -> tuple:
         """
         returns 'self' as a tuple representation as specified in specification-B.pdf
@@ -169,29 +168,51 @@ class AgentBoard:
 
         # TODO: test the SHIT out of this method and maybe add draw/win condition checking ?
 
-
-    def is_legal(self, move: Action)->bool:
+    def is_legal(self, move: Action) -> bool:
         """
         checks if the move is legal or not
         """
-        # TODO: implement this method
+        if move.throw_action:
+            if move.token_type >= L_ROCK:
+                num_throws = 9 - self.lower_throws
+                rows_available = range(-4, -4 + num_throws + 1)
+            else:
+                num_throws = self.upper_throws
+                rows_available = range(4 - num_throws, 4 + 1)
 
+            return move.new_coord[0] in rows_available
+
+        assert(move.old_coord is not False)
         coord = move.old_coord
+        assert(isinstance(coord, tuple))
+
         adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
                      (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
-        if not move.new_coord in adjacents:
+
+        if move.new_coord not in adjacents:
             # Coord updated to coord moved to such that intersection of 2 adjacent sets are where possible swing
             # tokens lie
+
+            # Swing moves
             coord = move.new_coord
             new_adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
-                     (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
+                             (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
             intersect = list(set.intersection(set(adjacents), set(new_adjacents)))
-            for
+
+            for coord in intersect:
+                if move.token_type >= L_ROCK:
+                    for piece in self.board_dict[coord]:
+                        if piece >= L_ROCK:
+                            return True
+                else:
+                    for piece in self.board_dict[coord]:
+                        if piece < L_ROCK:
+                            return True
             return False
+
         elif move.new_coord not in ALL_HEXES:
             return False
         return True
-
 
 
 def remove_all(lst: list, val):

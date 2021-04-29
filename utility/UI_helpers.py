@@ -192,7 +192,6 @@ class AgentBoard:
         if move.new_coord not in adjacents:
             # Coord updated to coord moved to such that intersection of 2 adjacent sets are where possible swing
             # tokens lie
-
             # Swing moves
             coord = move.new_coord
             new_adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
@@ -213,6 +212,89 @@ class AgentBoard:
         elif move.new_coord not in ALL_HEXES:
             return False
         return True
+
+    def generate_moves(self, coord, piece_type) -> list:
+
+        # slide moves
+        slide_moves = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
+                       (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
+
+        # swing moves
+        adjacent_pieces = []
+        for tile in slide_moves:
+            # checks piece being moved against neighbouring pieces for piece type
+            if piece_type >= L_ROCK:
+                for piece in self.board_dict[tile]:
+                    if piece >= L_ROCK:
+                        adjacent_pieces.append(tile)
+            elif self.board_dict[coord] < L_ROCK:
+                for piece in self.board_dict[tile]:
+                    if piece < L_ROCK:
+                        adjacent_pieces.append(tile)
+
+        swing_moves = []
+        for tile in adjacent_pieces:
+            pos_swings = [(tile[0] + 1, tile[1]), (tile[0] - 1, tile[1]), (tile[0], tile[1] + 1),
+                          (tile[0], tile[1] - 1), (tile[0] - 1, tile[1] + 1), (tile[0] + 1, tile[1] - 1)]
+            swing_moves.extend(pos_swings)
+
+        # union of all swing and slide moves
+        moves = list(set.union(set(slide_moves), set(swing_moves)))
+        moves.remove(coord)
+
+        # converts all moves into Actions
+        action_moves = []
+        for move in moves:
+            new_move = Action(self.board_dict(coord), move, coord)
+            if self.is_legal(new_move):
+                action_moves.append(new_move)
+
+        return action_moves
+
+    def generate_all(self, piece_type) -> list:
+
+        # generates a list of all actions a team can do
+        all_moves = []
+        if piece_type >= L_ROCK:
+            for tile in self.board_dict.items():
+                for piece in tile[1]:
+                    if piece >= L_ROCK:
+                        all_moves.extend(self.generate_moves(self, tile[0], piece))
+        else:
+            for tile in self.board_dict.items():
+                for piece in tile[1]:
+                    if piece < L_ROCK:
+                        all_moves.extend(self.generate_moves(self, tile[0], piece))
+
+        if piece_type >= L_ROCK:
+            if self.lower_throws == 0:
+                return all_moves
+        elif piece_type < L_ROCK:
+            if self.upper_throws == 0:
+                return all_moves
+
+        # rows available for throws calculated
+        if piece_type >= L_ROCK:
+            num_throws = 9 - self.lower_throws
+            rows_available = range(-4, -4 + num_throws + 1)
+        else:
+            num_throws = self.upper_throws
+            rows_available = range(4 - num_throws, 4 + 1)
+
+        # throw moves added
+        for row in rows_available:
+            for tile in ALL_HEXES:
+                if tile[0] == row:
+                    if piece_type >= L_ROCK:
+                        all_moves.append(Action(L_ROCK, tile))
+                        all_moves.append(Action(L_SCISSORS, tile))
+                        all_moves.append(Action(L_PAPER, tile))
+                    else:
+                        all_moves.append(Action(U_ROCK, tile))
+                        all_moves.append(Action(U_SCISSORS, tile))
+                        all_moves.append(Action(U_PAPER, tile))
+
+        return all_moves
 
 
 def remove_all(lst: list, val):

@@ -18,6 +18,8 @@
     - total distance from upper rocks to lower scissors + total distance from upper papers \
       to lower rocks + total distance from upper scissors to lower papers
       
+    - number of upper tokens - number of lower tokens
+      
 - Always have 'Player' playing 'upper' internally and if it has been assigned 'lower' just \
   invert the moves given to the referee and invert the moves coming from the referee
   

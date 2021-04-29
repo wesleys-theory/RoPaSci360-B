@@ -41,7 +41,24 @@ class Action:
         """
         returns 'self' as a tuple representation as specified in specification-B.pdf
         """
-        # TODO: implement this method
+        from utility.evaluation import distance
+
+        type = ""
+        if self.token_type in (U_ROCK, L_ROCK) :
+            type = "r"
+        elif self.token_type in (U_SCISSORS, L_SCISSORS):
+            type = "s"
+        elif self.token_type in (U_PAPER, L_PAPER):
+            type = "p"
+
+        if self.throw_action:
+            return "THROW", type, self.new_coord
+
+        atype = "SLIDE"
+        if distance > 1:
+            atype = "SWING"
+
+        return atype, self.old_coord, self.new_coord
 
 
 class AgentBoard:
@@ -67,6 +84,10 @@ class AgentBoard:
         self.lower_rocks = []
         self.lower_papers = []
         self.lower_scissors = []
+
+        # boolean values for checking win and draw conditions
+        self.upper_winner = False
+        self.lower_winner = False
 
     def battle(self, coord: tuple):
         """
@@ -177,7 +198,7 @@ class AgentBoard:
                 num_throws = 9 - self.lower_throws
                 rows_available = range(-4, -4 + num_throws + 1)
             else:
-                num_throws = self.upper_throws
+                num_throws = 9 - self.upper_throws
                 rows_available = range(4 - num_throws, 4 + 1)
 
             return move.new_coord[0] in rows_available
@@ -213,6 +234,7 @@ class AgentBoard:
             return False
         return True
 
+    #TODO change piecetype to a boolean
     def generate_moves(self, coord, piece_type) -> list:
 
         # slide moves
@@ -245,12 +267,13 @@ class AgentBoard:
         # converts all moves into Actions
         action_moves = []
         for move in moves:
-            new_move = Action(self.board_dict(coord), move, coord)
+            new_move = Action(piece_type, move, coord)
             if self.is_legal(new_move):
                 action_moves.append(new_move)
 
         return action_moves
 
+    #TODO change piecetype to a boolean
     def generate_all(self, piece_type) -> list:
 
         # generates a list of all actions a team can do
@@ -278,7 +301,7 @@ class AgentBoard:
             num_throws = 9 - self.lower_throws
             rows_available = range(-4, -4 + num_throws + 1)
         else:
-            num_throws = self.upper_throws
+            num_throws = 9 - self.upper_throws
             rows_available = range(4 - num_throws, 4 + 1)
 
         # throw moves added

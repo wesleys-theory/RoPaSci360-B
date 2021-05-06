@@ -3,6 +3,9 @@
 - consider data representation of the board for optimal searching (pending)
 - consider evaluation function (possible use of machine learning here)
 - research minimax algorithm and how to extend it to simultaneous play
+- optimize the program to improve time complexity
+- work on weights for the evaluation function
+- increase depth of the search tree
 
 **IDEAS**
 - Player class has attribute 'Move Strategy'

@@ -55,7 +55,7 @@ class Action:
             return "THROW", type, self.new_coord
 
         atype = "SLIDE"
-        if distance > 1:
+        if distance(self.old_coord, self.new_coord) > 1:
             atype = "SWING"
 
         return atype, self.old_coord, self.new_coord
@@ -182,6 +182,8 @@ class AgentBoard:
                 self.board_dict[l_action.new_coord].append(L_PAPER)
 
         # Tokens have moved, now perform any necessary battles
+
+
         self.battle(u_action.new_coord)
         self.battle(l_action.new_coord)
 
@@ -200,7 +202,6 @@ class AgentBoard:
             else:
                 num_throws = 9 - self.upper_throws
                 rows_available = range(4 - num_throws, 4 + 1)
-
             return move.new_coord[0] in rows_available
 
         assert(move.old_coord is not False)
@@ -236,11 +237,10 @@ class AgentBoard:
 
     #TODO change piecetype to a boolean
     def generate_moves(self, coord, piece_type) -> list:
-
         # slide moves
         slide_moves = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
                        (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
-
+        slide_moves = list(set.intersection(set(slide_moves), set(ALL_HEXES)))
         # swing moves
         adjacent_pieces = []
         for tile in slide_moves:
@@ -249,7 +249,7 @@ class AgentBoard:
                 for piece in self.board_dict[tile]:
                     if piece >= L_ROCK:
                         adjacent_pieces.append(tile)
-            elif self.board_dict[coord] < L_ROCK:
+            else:
                 for piece in self.board_dict[tile]:
                     if piece < L_ROCK:
                         adjacent_pieces.append(tile)
@@ -260,9 +260,12 @@ class AgentBoard:
                           (tile[0], tile[1] - 1), (tile[0] - 1, tile[1] + 1), (tile[0] + 1, tile[1] - 1)]
             swing_moves.extend(pos_swings)
 
+        swing_moves = list(set.intersection(set(swing_moves), set(ALL_HEXES)))
+
         # union of all swing and slide moves
         moves = list(set.union(set(slide_moves), set(swing_moves)))
-        moves.remove(coord)
+        if coord in moves:
+            moves.remove(coord)
 
         # converts all moves into Actions
         action_moves = []
@@ -282,12 +285,12 @@ class AgentBoard:
             for tile in self.board_dict.items():
                 for piece in tile[1]:
                     if piece >= L_ROCK:
-                        all_moves.extend(self.generate_moves(self, tile[0], piece))
+                        all_moves.extend(self.generate_moves(tile[0], piece))
         else:
             for tile in self.board_dict.items():
                 for piece in tile[1]:
                     if piece < L_ROCK:
-                        all_moves.extend(self.generate_moves(self, tile[0], piece))
+                        all_moves.extend(self.generate_moves(tile[0], piece))
 
         if piece_type >= L_ROCK:
             if self.lower_throws == 0:
@@ -299,6 +302,7 @@ class AgentBoard:
         # rows available for throws calculated
         if piece_type >= L_ROCK:
             num_throws = 9 - self.lower_throws
+            print("Num throws made:", num_throws)
             rows_available = range(-4, -4 + num_throws + 1)
         else:
             num_throws = 9 - self.upper_throws
@@ -316,6 +320,8 @@ class AgentBoard:
                         all_moves.append(Action(U_ROCK, tile))
                         all_moves.append(Action(U_SCISSORS, tile))
                         all_moves.append(Action(U_PAPER, tile))
+
+
 
         return all_moves
 

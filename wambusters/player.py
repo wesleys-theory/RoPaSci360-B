@@ -15,7 +15,6 @@ class Player:
 
         self.board = AgentBoard()
         self.upper = (player == "upper")
-        print("self.upper = ", self.upper)
 
     def action(self):
         """
@@ -34,33 +33,59 @@ class Player:
         The parameter opponent_action is the opponent's chosen action,
         and player_action is this instance's latest chosen action.
         """
-        # put your code here
-        actions = []
-        # convert tuple to 'Action' object
+        piece_type = player_action[1]
+        if self.upper:
+            if piece_type == "r":
+                piece = 0
+            elif piece_type == "p":
+                piece = 1
+            elif piece_type == "s":
+                piece = 2
+        else:
+            if piece_type == "r":
+                piece = 3
+            elif piece_type == "p":
+                piece = 4
+            elif piece_type == "s":
+                piece = 5
 
+        if player_action[0] == "THROW":
+            our_action = Action(piece, player_action[2])
+        else:
+            piece = self.board.board_dict[player_action[1]][0]
+            if piece > 2 and self.upper:
+                piece -= 3
+            elif piece < 2 and not self.upper:
+                piece += 3
+            our_action = Action(piece, player_action[2], player_action[1])
 
-        for action in (opponent_action, player_action):
-            if action[0] == "THROW":
-                piece_type = action[1]
-                if piece_type == "r":
-                    piece = 3
-                elif piece_type == "s":
-                    piece = 5
-                elif piece_type == "p":
-                    piece = 4
-                elif piece_type == "R":
-                    piece = 0
-                elif piece_type == "S":
-                    piece = 2
-                elif piece_type == "P":
-                    piece = 1
+        piece_type = opponent_action[1]
+        if not self.upper:
+            if piece_type == "r":
+                piece = 0
+            elif piece_type == "p":
+                piece = 1
+            elif piece_type == "s":
+                piece = 2
+        else:
+            if piece_type == "r":
+                piece = 3
+            elif piece_type == "p":
+                piece = 4
+            elif piece_type == "s":
+                piece = 5
 
-                actions.append(Action(piece, action[2]))
-            else:
-                piece = self.board.board_dict[action[1]][1]
-                actions.append(Action(piece, action[2], action[1]))
+        if opponent_action[0] == "THROW":
+            their_action = Action(piece, opponent_action[2])
+        else:
+            piece = self.board.board_dict[opponent_action[1]][0]
+            if piece > 2 and not self.upper:
+                piece -= 3
+            elif piece < 2 and self.upper:
+                piece += 3
+            their_action = Action(piece, opponent_action[2], opponent_action[1])
 
         if self.upper:
-            self.board.enact_actions(actions[1], actions[0])
+            self.board.enact_actions(our_action, their_action)
         else:
-            self.board.enact_actions(actions[0], actions[1])
+            self.board.enact_actions(their_action, our_action)

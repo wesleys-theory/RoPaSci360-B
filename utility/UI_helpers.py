@@ -44,7 +44,7 @@ class Action:
         from utility.evaluation import distance
 
         type = ""
-        if self.token_type in (U_ROCK, L_ROCK) :
+        if self.token_type in (U_ROCK, L_ROCK):
             type = "r"
         elif self.token_type in (U_SCISSORS, L_SCISSORS):
             type = "s"
@@ -116,12 +116,6 @@ class AgentBoard:
         """
         performs the given actions by updating the board data
         """
-        if not self.is_legal(u_action) or not self.is_legal(l_action):
-            print("Error: move is not legal")
-            return
-
-        assert(u_action.token_type in [U_ROCK, U_PAPER, U_SCISSORS] and
-               l_action.token_type in [L_ROCK, L_PAPER, L_SCISSORS])
 
         # Move tokens to their appropriate spots
 
@@ -183,7 +177,6 @@ class AgentBoard:
 
         # Tokens have moved, now perform any necessary battles
 
-
         self.battle(u_action.new_coord)
         self.battle(l_action.new_coord)
 
@@ -204,9 +197,9 @@ class AgentBoard:
                 rows_available = range(4 - num_throws, 4 + 1)
             return move.new_coord[0] in rows_available
 
-        assert(move.old_coord is not False)
+        assert (move.old_coord is not False)
         coord = move.old_coord
-        assert(isinstance(coord, tuple))
+        assert (isinstance(coord, tuple))
 
         adjacents = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
                      (coord[0], coord[1] - 1), (coord[0] - 1, coord[1] + 1), (coord[0] + 1, coord[1] - 1)]
@@ -235,7 +228,7 @@ class AgentBoard:
             return False
         return True
 
-    #TODO change piecetype to a boolean
+    # TODO change piecetype to a boolean
     def generate_moves(self, coord, piece_type) -> list:
         # slide moves
         slide_moves = [(coord[0] + 1, coord[1]), (coord[0] - 1, coord[1]), (coord[0], coord[1] + 1),
@@ -271,12 +264,11 @@ class AgentBoard:
         action_moves = []
         for move in moves:
             new_move = Action(piece_type, move, coord)
-            if self.is_legal(new_move):
-                action_moves.append(new_move)
+            action_moves.append(new_move)
 
         return action_moves
 
-    #TODO change piecetype to a boolean
+    # TODO change piecetype to a boolean
     def generate_all(self, piece_type) -> list:
 
         # generates a list of all actions a team can do
@@ -302,7 +294,6 @@ class AgentBoard:
         # rows available for throws calculated
         if piece_type >= L_ROCK:
             num_throws = 9 - self.lower_throws
-            print("Num throws made:", num_throws)
             rows_available = range(-4, -4 + num_throws + 1)
         else:
             num_throws = 9 - self.upper_throws
@@ -320,8 +311,6 @@ class AgentBoard:
                         all_moves.append(Action(U_ROCK, tile))
                         all_moves.append(Action(U_SCISSORS, tile))
                         all_moves.append(Action(U_PAPER, tile))
-
-
 
         return all_moves
 

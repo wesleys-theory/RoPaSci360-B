@@ -27,3 +27,13 @@
   invert the moves given to the referee and invert the moves coming from the referee
   
 - Have a token run away if things are looking bad to guarantee draw
+
+**IN THIS UPDATE**
+- removed is_legal function, implement legal move generation on the fly to save time
+- new feature which takes into account hexes with more than one token on them
+    - idea being that it is bad to have, for example, 2 rocks on one hex as they can both
+    be killed at once
+      
+- another new feature: difference in remaining throws
+- added random player
+- need to bugfix move generating; still generating illegal moves

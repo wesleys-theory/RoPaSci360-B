@@ -3,6 +3,7 @@ from utility.gametheory import solve_game
 from copy import deepcopy
 import random
 
+
 def distance(coord1, coord2):
     """
     calculates the number of moves required to go directly from one coordinate to another,
@@ -49,10 +50,10 @@ def evaluate(board: AgentBoard) -> float:
         if piece_lists[i] == 0 and (board.upper_throws == 0) and inverse_pieces[i] > 0:
             board.lower_winner = True
         else:
-            lower_ratio += inverse_pieces[i] / (piece_lists[i] + 1)
+            lower_ratio += piece_lists[i] / (inverse_pieces[i] + 1)
 
     ratio_feature = upper_ratio - lower_ratio
-    ratio_weight = 1
+    ratio_weight = 200
     features.append(ratio_feature)
     weights.append(ratio_weight)
 
@@ -67,18 +68,41 @@ def evaluate(board: AgentBoard) -> float:
         pieces_distance(board.lower_papers, board.upper_rocks)
 
     distance_feature = 1 / (upper_distance + 1) - 1 / (lower_distance + 1)
-    distance_weight = 1
+    distance_weight = 0
     features.append(distance_feature)
     weights.append(distance_weight)
 
     # third feature: number of upper pieces on the board - number of lower pieces
-    num_upper_pieces = len(board.upper_rocks) + len(board.upper_papers) + len(board.upper_scissors) + board.upper_throws
-    num_lower_pieces = len(board.lower_rocks) + len(board.lower_papers) + len(board.lower_scissors) + board.lower_throws
+    num_upper_pieces = len(board.upper_rocks) + len(board.upper_papers) + len(board.upper_scissors)
+    num_lower_pieces = len(board.lower_rocks) + len(board.lower_papers) + len(board.lower_scissors)
 
     pieces_feature = num_upper_pieces - num_lower_pieces
-    pieces_weight = 1
+    pieces_weight = 10
     features.append(pieces_feature)
     weights.append(pieces_weight)
+
+    # fourth feature: difference in remaining throws
+    throws_feature = board.upper_throws - board.lower_throws
+    throws_weight = 3
+    features.append(throws_feature)
+    weights.append(throws_weight)
+
+    # fifth feature: number of hexes with duplicate pieces
+    upper_piece_lists = [board.upper_rocks, board.upper_papers, board.upper_scissors]
+    lower_piece_lists = [board.lower_rocks, board.lower_papers, board.lower_scissors]
+
+    num_upper_duplicates = 0
+    num_lower_duplicates = 0
+    for piece_list in upper_piece_lists:
+        num_upper_duplicates += len(piece_list) - len(set(piece_list))
+
+    for piece_list in lower_piece_lists:
+        num_lower_duplicates += len(piece_list) - len(set(piece_list))
+
+    duplicate_feature = num_lower_duplicates - num_upper_duplicates
+    duplicate_weight = 3
+    features.append(duplicate_feature)
+    weights.append(duplicate_weight)
 
     output = 0
     for i in range(len(features)):
@@ -104,24 +128,13 @@ def pieces_distance(attacking_pieces: list, defending_pieces: list):
     return output
 
 
-def choose_best_action(board: AgentBoard, maximise: bool) -> Action:
+def choose_best_action(board: AgentBoard, upper: bool) -> Action:
     """
     Creates a payoff matrix using the 'evaluate' function and uses the given solve_game function to choose a move
-    according to a probability distribution
+    according to the probability distribution 'strategy'
     """
     upper_actions = board.generate_all(0)
     lower_actions = board.generate_all(5)
-
-    upper_actions_to_print = []
-    lower_actions_to_print = []
-
-    for action in upper_actions:
-        upper_actions_to_print.append(action.referee_representation())
-    for action in lower_actions:
-        lower_actions_to_print.append(action.referee_representation())
-
-    print("upper actions:", upper_actions_to_print)
-    print("lower actions:", lower_actions_to_print)
 
     matrix = []
     for u_action in upper_actions:
@@ -132,10 +145,19 @@ def choose_best_action(board: AgentBoard, maximise: bool) -> Action:
             row.append(evaluate(board_copy))
         matrix.append(row)
 
+    strategy, v = solve_game(matrix, upper, upper)
 
-    strategy, v = solve_game(matrix, maximise, maximise)
-
-    if maximise:
+    if upper:
         return random.choices(upper_actions, strategy)[0]
     else:
         return random.choices(lower_actions, strategy)[0]
+
+
+def choose_random_action(board: AgentBoard, upper: bool) -> Action:
+    upper_actions = board.generate_all(0)
+    lower_actions = board.generate_all(5)
+
+    if upper:
+        return random.choices(upper_actions)[0]
+    else:
+        return random.choices(lower_actions)[0]

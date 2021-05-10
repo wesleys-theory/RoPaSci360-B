@@ -1,6 +1,9 @@
 from utility.UI_helpers import AgentBoard, Action
-from utility.evaluation import choose_random_action
-from wambusters.player import Player as MainPlayer
+#TODO switch back
+# from utility.evaluation import choose_random_action
+from other_players.evaluation import choose_random_action
+#TODO commented when evalb implemented due to circular import error
+# from wambusters.player import Player as MainPlayer
 
 
 class Player:
@@ -56,7 +59,7 @@ class Player:
             piece = self.board.board_dict[player_action[1]][0]
             if piece > 2 and self.upper:
                 piece -= 3
-            elif piece < 2 and not self.upper:
+            elif piece <= 2 and not self.upper:
                 piece += 3
             our_action = Action(piece, player_action[2], player_action[1])
 
@@ -82,7 +85,7 @@ class Player:
             piece = self.board.board_dict[opponent_action[1]][0]
             if piece > 2 and not self.upper:
                 piece -= 3
-            elif piece < 2 and self.upper:
+            elif piece <= 2 and self.upper:
                 piece += 3
             their_action = Action(piece, opponent_action[2], opponent_action[1])
 

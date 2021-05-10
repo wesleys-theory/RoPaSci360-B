@@ -274,15 +274,15 @@ class AgentBoard:
         # generates a list of all actions a team can do
         all_moves = []
         if piece_type >= L_ROCK:
-            for tile in self.board_dict.items():
-                for piece in tile[1]:
+            for tile in self.lower_rocks+self.lower_papers+self.lower_scissors:
+                for piece in self.board_dict[tile]:
                     if piece >= L_ROCK:
-                        all_moves.extend(self.generate_moves(tile[0], piece))
+                        all_moves.extend(self.generate_moves(tile, piece))
         else:
-            for tile in self.board_dict.items():
-                for piece in tile[1]:
+            for tile in self.upper_rocks+self.upper_scissors+self.upper_papers:
+                for piece in self.board_dict[tile]:
                     if piece < L_ROCK:
-                        all_moves.extend(self.generate_moves(tile[0], piece))
+                        all_moves.extend(self.generate_moves(tile, piece))
 
         if piece_type >= L_ROCK:
             if self.lower_throws == 0:
@@ -299,10 +299,19 @@ class AgentBoard:
             num_throws = 9 - self.upper_throws
             rows_available = range(4 - num_throws, 4 + 1)
 
+        i = 0
         # throw moves added
         for row in rows_available:
             for tile in ALL_HEXES:
-                if tile[0] == row:
+                attackable = False
+                for piece in self.board_dict[tile]:
+                    if piece_type >= L_ROCK:
+                        if piece < L_ROCK:
+                            attackable = True
+                    else:
+                        if piece >= L_ROCK:
+                            attackable = True
+                if tile[0] == row and ((row == 4 or row == -4) or attackable):
                     if piece_type >= L_ROCK:
                         all_moves.append(Action(L_ROCK, tile))
                         all_moves.append(Action(L_SCISSORS, tile))

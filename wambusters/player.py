@@ -1,7 +1,5 @@
 from utility.UI_helpers import AgentBoard, Action
-# from utility.evaluation import choose_best_action
-# TODO create final eval funciton
-from other_players.evaluation import choose_best_action as choose_b
+from utility.evaluation import choose_best_action
 
 class Player:
     def __init__(self, player):
@@ -24,9 +22,7 @@ class Player:
         of the game, select an action to play this turn.
         """
         # put your code here
-        #TODO finalise
-        # output = choose_best_action(self.board, self.upper)
-        output = choose_b(self.board, self.upper)
+        output = choose_best_action(self.board, self.upper)
         return output.referee_representation()
 
     def update(self, opponent_action, player_action):

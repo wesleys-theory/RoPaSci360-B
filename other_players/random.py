@@ -1,9 +1,6 @@
 from utility.UI_helpers import AgentBoard, Action
-#TODO switch back
-# from utility.evaluation import choose_random_action
-from other_players.evaluation import choose_random_action
-#TODO commented when evalb implemented due to circular import error
-# from wambusters.player import Player as MainPlayer
+from utility.evaluation import choose_random_action
+from wambusters.player import Player as MainPlayer
 
 
 class Player:

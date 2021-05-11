@@ -24,10 +24,16 @@ def distance(coord1, coord2):
     return (abs(dr) + abs(dq) + abs(dy)) // 2
 
 
-def evaluate(board: AgentBoard) -> float:
+def evaluate(board: AgentBoard, upper: bool) -> float:
     """
     Gives a score for how profitable the board is; positive means good for upper, negative means good for lower
     """
+
+    ratio_weight = 1
+    duplicate_weight = 0
+    distance_weight = 1
+    pieces_weight = 10
+    throws_weight = 0
 
     features = []
     weights = []
@@ -45,15 +51,15 @@ def evaluate(board: AgentBoard) -> float:
         if inverse_pieces[i] == 0 and (board.lower_throws == 0) and piece_lists[i] > 0:
             board.upper_winner = True
         else:
-            upper_ratio += piece_lists[i] / (inverse_pieces[i] + 1)
+            upper_ratio += min(piece_lists[i], 1) * (inverse_pieces[i])
     for i in range(3, 6):
         if piece_lists[i] == 0 and (board.upper_throws == 0) and inverse_pieces[i] > 0:
             board.lower_winner = True
         else:
-            lower_ratio += piece_lists[i] / (inverse_pieces[i] + 1)
+            lower_ratio += min(piece_lists[i], 1) * (inverse_pieces[i])
 
     ratio_feature = upper_ratio - lower_ratio
-    ratio_weight = 200
+
     features.append(ratio_feature)
     weights.append(ratio_weight)
 
@@ -68,22 +74,22 @@ def evaluate(board: AgentBoard) -> float:
         pieces_distance(board.lower_papers, board.upper_rocks)
 
     distance_feature = 1 / (upper_distance + 1) - 1 / (lower_distance + 1)
-    distance_weight = 0
+
     features.append(distance_feature)
     weights.append(distance_weight)
 
     # third feature: number of upper pieces on the board - number of lower pieces
-    num_upper_pieces = len(board.upper_rocks) + len(board.upper_papers) + len(board.upper_scissors)
-    num_lower_pieces = len(board.lower_rocks) + len(board.lower_papers) + len(board.lower_scissors)
+    num_upper_pieces = len(board.upper_rocks) + len(board.upper_papers) + len(board.upper_scissors) + board.upper_throws
+    num_lower_pieces = len(board.lower_rocks) + len(board.lower_papers) + len(board.lower_scissors) + board.lower_throws
 
     pieces_feature = num_upper_pieces - num_lower_pieces
-    pieces_weight = 10
+
     features.append(pieces_feature)
     weights.append(pieces_weight)
 
     # fourth feature: difference in remaining throws
     throws_feature = board.upper_throws - board.lower_throws
-    throws_weight = 3
+
     features.append(throws_feature)
     weights.append(throws_weight)
 
@@ -100,9 +106,11 @@ def evaluate(board: AgentBoard) -> float:
         num_lower_duplicates += len(piece_list) - len(set(piece_list))
 
     duplicate_feature = num_lower_duplicates - num_upper_duplicates
-    duplicate_weight = 3
+
     features.append(duplicate_feature)
     weights.append(duplicate_weight)
+
+    # sixth feature: maintaining less throws than opponent
 
     output = 0
     for i in range(len(features)):
@@ -142,7 +150,7 @@ def choose_best_action(board: AgentBoard, upper: bool) -> Action:
         for l_action in lower_actions:
             board_copy = deepcopy(board)
             board_copy.enact_actions(u_action, l_action)
-            row.append(evaluate(board_copy))
+            row.append(evaluate(board_copy, upper))
         matrix.append(row)
 
     strategy, v = solve_game(matrix, upper, upper)

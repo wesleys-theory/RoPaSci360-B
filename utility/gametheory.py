@@ -61,7 +61,11 @@ def solve_game(V, maximiser=True, rowplayer=True):
         b_ub=-np.ones(m),
     )
     if res.status:
-        raise OptimisationError(res.message)  # TODO: propagate whole result
+        # raise OptimisationError(res.message)  # TODO: propagate whole result
+        if rowplayer:
+            return np.ones(n)
+        else:
+            return np.ones(m)
     # compute strategy and value
     v = 1 / res.x.sum()
     s = res.x * v

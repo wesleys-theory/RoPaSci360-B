@@ -2,6 +2,8 @@
 Functions and data structures that help with communicating between players and the referee
 """
 
+from copy import deepcopy
+
 # Global constants for list of all hex coordinates
 HEX_RANGE = range(-4, 4 + 1)
 ALL_HEXES = [(r, q) for r in HEX_RANGE for q in HEX_RANGE if -r - q in HEX_RANGE]
@@ -166,7 +168,11 @@ class AgentBoard:
                 self.board_dict[l_action.new_coord].append(L_ROCK)
             elif l_action.token_type is L_SCISSORS:
                 self.lower_scissors.remove(l_action.old_coord)
+                # cpy = deepcopy(self.board_dict[l_action.old_coord])
+                # cpy.remove(L_SCISSORS)
+                # print("cpy = ", cpy)
                 self.board_dict[l_action.old_coord].remove(L_SCISSORS)
+                # print("board_dict =  ",self.board_dict[l_action.old_coord])
                 self.lower_scissors.append(l_action.new_coord)
                 self.board_dict[l_action.new_coord].append(L_SCISSORS)
             elif l_action.token_type is L_PAPER:
@@ -303,15 +309,7 @@ class AgentBoard:
         # throw moves added
         for row in rows_available:
             for tile in ALL_HEXES:
-                attackable = False
-                for piece in self.board_dict[tile]:
-                    if piece_type >= L_ROCK:
-                        if piece < L_ROCK:
-                            attackable = True
-                    else:
-                        if piece >= L_ROCK:
-                            attackable = True
-                if tile[0] == row and ((row == 4 or row == -4) or attackable):
+                if tile[0] == row:
                     if piece_type >= L_ROCK:
                         all_moves.append(Action(L_ROCK, tile))
                         all_moves.append(Action(L_SCISSORS, tile))

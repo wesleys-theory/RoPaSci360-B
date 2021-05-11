@@ -141,8 +141,12 @@ def choose_best_action(board: AgentBoard, upper: bool) -> Action:
     Creates a payoff matrix using the 'evaluate' function and uses the given solve_game function to choose a move
     according to the probability distribution 'strategy'
     """
-    upper_actions = board.generate_all(0)
-    lower_actions = board.generate_all(5)
+    lower = True
+    if upper is True:
+        lower = False
+
+    upper_actions = board.generate_all(0, upper)
+    lower_actions = board.generate_all(5, lower)
 
     matrix = []
     for u_action in upper_actions:
@@ -162,8 +166,8 @@ def choose_best_action(board: AgentBoard, upper: bool) -> Action:
 
 
 def choose_random_action(board: AgentBoard, upper: bool) -> Action:
-    upper_actions = board.generate_all(0)
-    lower_actions = board.generate_all(5)
+    upper_actions = board.generate_all(0, True)
+    lower_actions = board.generate_all(5, True)
 
     if upper:
         return random.choices(upper_actions)[0]

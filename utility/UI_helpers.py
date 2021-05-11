@@ -275,7 +275,7 @@ class AgentBoard:
         return action_moves
 
     # TODO change piecetype to a boolean
-    def generate_all(self, piece_type) -> list:
+    def generate_all(self, piece_type, match: bool) -> list:
 
         # generates a list of all actions a team can do
         all_moves = []
@@ -307,17 +307,32 @@ class AgentBoard:
 
         i = 0
         # throw moves added
-        for row in rows_available:
-            for tile in ALL_HEXES:
-                if tile[0] == row:
-                    if piece_type >= L_ROCK:
-                        all_moves.append(Action(L_ROCK, tile))
-                        all_moves.append(Action(L_SCISSORS, tile))
-                        all_moves.append(Action(L_PAPER, tile))
-                    else:
-                        all_moves.append(Action(U_ROCK, tile))
-                        all_moves.append(Action(U_SCISSORS, tile))
-                        all_moves.append(Action(U_PAPER, tile))
+        num_upper_pieces = len(self.upper_rocks) + len(self.upper_papers) + len(self.upper_scissors)
+        num_lower_pieces = len(self.lower_rocks) + len(self.lower_papers) + len(self.lower_scissors)
+
+        upper = True
+        if piece_type >= L_ROCK:
+            upper = False
+
+        if upper:
+            our_pieces = num_upper_pieces
+            their_pieces = num_lower_pieces
+        else:
+            our_pieces = num_lower_pieces
+            their_pieces = num_upper_pieces
+
+        if (match and our_pieces < 3) or (their_pieces < 1) or (our_pieces < 1):
+            for row in rows_available:
+                for tile in ALL_HEXES:
+                    if tile[0] == row:
+                        if piece_type >= L_ROCK:
+                            all_moves.append(Action(L_ROCK, tile))
+                            all_moves.append(Action(L_SCISSORS, tile))
+                            all_moves.append(Action(L_PAPER, tile))
+                        else:
+                            all_moves.append(Action(U_ROCK, tile))
+                            all_moves.append(Action(U_SCISSORS, tile))
+                            all_moves.append(Action(U_PAPER, tile))
 
         return all_moves
 

@@ -317,9 +317,11 @@ class AgentBoard:
         if upper:
             our_pieces = num_upper_pieces
             their_pieces = num_lower_pieces
+            their_throws = self.lower_throws
         else:
             our_pieces = num_lower_pieces
             their_pieces = num_upper_pieces
+            their_throws = self.upper_throws
 
         if (match and our_pieces < 3) or (their_pieces < 1) or (our_pieces < 1):
             for row in rows_available:
@@ -333,6 +335,18 @@ class AgentBoard:
                             all_moves.append(Action(U_ROCK, tile))
                             all_moves.append(Action(U_SCISSORS, tile))
                             all_moves.append(Action(U_PAPER, tile))
+
+        if their_throws == 0:
+            for tile in ALL_HEXES:
+                if tile[0] == rows_available[0]:
+                    if piece_type >= L_ROCK:
+                        all_moves.append(Action(L_ROCK, tile))
+                        all_moves.append(Action(L_SCISSORS, tile))
+                        all_moves.append(Action(L_PAPER, tile))
+                    else:
+                        all_moves.append(Action(U_ROCK, tile))
+                        all_moves.append(Action(U_SCISSORS, tile))
+                        all_moves.append(Action(U_PAPER, tile))
 
         return all_moves
 
